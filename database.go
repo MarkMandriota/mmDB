@@ -1,10 +1,10 @@
 package mm_database
 
 import (
-	"fmt"
+	"bufio"
+	"io"
 	"os"
 	"syscall"
-	"unsafe"
 )
 
 type Requester struct {
@@ -12,30 +12,30 @@ type Requester struct {
 }
 
 func (r *Requester) Load(name string) error {
-	file, err := syscall.Open(name, syscall.O_CREAT | syscall.O_RDONLY | syscall.O_CLOEXEC, 1<<32-1)
+	file, err := os.Open(name)
 	if err != nil {
 		return err
 	}
 
-	stat, _ := os.Stat(name)
-	size := stat.Size()
-
-	buff := make([]byte, 1)
-	for ; ; {
-		syscall.Read(file, buff)
-		if buff[0] == 0 {
-			
+	reader := bufio.NewReader(file)
+	for {
+		k, _ := reader.ReadBytes(0)
+		v, err := reader.ReadBytes(0)
+		if err == io.EOF {
+			break
 		}
+
+		r.Data[string(k[:len(k)-1])] = string(v[:len(v)-1])
 	}
 
 	return nil
 }
 
-func (r *Requester) Save(name string) error {
+func (r *Requester) Unload(name string) error {
 	path, _ := syscall.UTF16PtrFromString(name)
 	syscall.DeleteFile(path)
 
-	file, err := syscall.Open(name, syscall.O_CREAT | syscall.O_WRONLY | syscall.O_CLOEXEC, 1<<32-1)
+	file, err := syscall.Open(name, syscall.O_CREAT | syscall.O_WRONLY | syscall.O_CLOEXEC | syscall.O_ASYNC, 0)
 	if err != nil {
 		return err
 	}
