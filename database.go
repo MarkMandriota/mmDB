@@ -12,7 +12,7 @@ type Requester struct {
 }
 
 func (r *Requester) Load(pass string) {
-	file, err := os.OpenFile(pass, os.O_CREATE|os.O_RDONLY|syscall.O_CLOEXEC, 0777)
+	file, err := os.OpenFile(pass, syscall.O_CREAT|syscall.O_RDONLY|syscall.O_CLOEXEC, 0777)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +30,7 @@ func (r *Requester) Load(pass string) {
 }
 
 func (r *Requester) Unload(pass string) {
-	file, err := syscall.Open(pass, os.O_CREATE | os.O_TRUNC | syscall.O_WRONLY | syscall.O_CLOEXEC, 0777)
+	file, err := syscall.Open(pass, syscall.O_CREAT|syscall.O_TRUNC|syscall.O_WRONLY|syscall.O_CLOEXEC, 0777)
 	if err != nil {
 		panic(err)
 	}
