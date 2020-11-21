@@ -23,5 +23,19 @@ func main() {
 	if err := r.Unload("info"); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
+
+	fmt.Printf(read("info"))
+}
+
+func read(pass string) string {
+	r := &Req{Data: make(map[string]string)}
+	r.Load(pass)
+
+	var str string
+	for k, v := range r.Data {
+		str += fmt.Sprintf("Key: %s, Value: %s\n", k, v)
+	}
+
+	return str
 }
 ```
