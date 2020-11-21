@@ -7,12 +7,19 @@ import (
 	"syscall"
 )
 
-type Requester struct {
-	Data map[string]string
-}
+type (
+	Requester interface {
+		Load(name string) error
+		Unload(name string) error
+	}
+	
+	Req struct {
+		Data map[string]string
+	}
+)	
 
-func (r *Requester) Load(name string) error {
-	file, err := os.Open(name)
+func (r *Req) Load(name string) error {
+	file, err := os.OpenFile(name, os.O_CREATE | os.O_RDONLY | syscall.O_CLOEXEC, 0777)
 	if err != nil {
 		return err
 	}
@@ -31,18 +38,17 @@ func (r *Requester) Load(name string) error {
 	return nil
 }
 
-func (r *Requester) Unload(name string) error {
-	path, _ := syscall.UTF16PtrFromString(name)
-	syscall.DeleteFile(path)
-
-	file, err := syscall.Open(name, syscall.O_CREAT | syscall.O_WRONLY | syscall.O_CLOEXEC | syscall.O_ASYNC, 0)
+func (r *Req) Unload(name string) error {
+	file, err := syscall.Open(name, os.O_CREATE | os.O_TRUNC | syscall.O_WRONLY | syscall.O_CLOEXEC, 0777)
 	if err != nil {
 		return err
 	}
 
+	buff := make([]byte, 0, 1024)
 	for k, v := range r.Data {
-		syscall.Write(file, []byte(k + "\000" + v + "\000"))
+		buff = append(buff, []byte(k + "\000" + v + "\000")...)
 	}
+	syscall.Write(file, buff)
 
 	return nil
 }
