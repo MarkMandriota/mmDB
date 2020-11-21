@@ -5,9 +5,10 @@
 package main
 
 import (
-	. "MM_database"
 	"fmt"
 	"os"
+
+	. "github.com/WIDzer557/mmDB"
 )
 
 func main() {
