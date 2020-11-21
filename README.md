@@ -2,40 +2,47 @@
 
 **Example:**
 ```go
-package main
+package mm_database
 
 import (
-	. "MM_database"
-	"fmt"
+	"bufio"
+	"io"
 	"os"
+	"syscall"
 )
 
-func main() {
-	r := &Req{Data: make(map[string]string)}
-
-	if err := r.Load("info"); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-
-	r.Data["name"] = "Mark"
-	r.Data["DOB"] = "2007"
-
-	if err := r.Unload("info"); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-
-	fmt.Printf(read("info"))
+type Requester struct {
+	Data map[string]string
 }
 
-func read(pass string) string {
-	r := &Req{Data: make(map[string]string)}
-	r.Load(pass)
-
-	var str string
-	for k, v := range r.Data {
-		str += fmt.Sprintf("Key: %s, Value: %s\n", k, v)
+func (r *Requester) Load(name string) {
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_RDONLY|syscall.O_CLOEXEC, 0777)
+	if err != nil {
+		panic(err)
 	}
 
-	return str
+	reader := bufio.NewReader(file)
+	for {
+		k, _ := reader.ReadBytes(0)
+		v, err := reader.ReadBytes(0)
+		if err == io.EOF {
+			break
+		}
+
+		r.Data[string(k[:len(k)-1])] = string(v[:len(v)-1])
+	}
+}
+
+func (r *Requester) Unload(name string) {
+	file, err := syscall.Open(name, os.O_CREATE | os.O_TRUNC | syscall.O_WRONLY | syscall.O_CLOEXEC, 0777)
+	if err != nil {
+		panic(err)
+	}
+
+	buff := make([]byte, 0, 1024)
+	for k, v := range r.Data {
+		buff = append(buff, []byte(k + "\000" + v + "\000")...)
+	}
+	syscall.Write(file, buff)
 }
 ```
