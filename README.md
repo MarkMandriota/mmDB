@@ -5,7 +5,7 @@
 package main
 
 import (
-	. "./MM_database"
+	. "MM_database"
 	"fmt"
 	"os"
 )
