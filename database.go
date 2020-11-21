@@ -11,8 +11,8 @@ type Requester struct {
 	Data map[string]string
 }
 
-func (r *Requester) Load(name string) {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_RDONLY|syscall.O_CLOEXEC, 0777)
+func (r *Requester) Load(pass string) {
+	file, err := os.OpenFile(pass, os.O_CREATE|os.O_RDONLY|syscall.O_CLOEXEC, 0777)
 	if err != nil {
 		panic(err)
 	}
@@ -29,8 +29,8 @@ func (r *Requester) Load(name string) {
 	}
 }
 
-func (r *Requester) Unload(name string) {
-	file, err := syscall.Open(name, os.O_CREATE | os.O_TRUNC | syscall.O_WRONLY | syscall.O_CLOEXEC, 0777)
+func (r *Requester) Unload(pass string) {
+	file, err := syscall.Open(pass, os.O_CREATE | os.O_TRUNC | syscall.O_WRONLY | syscall.O_CLOEXEC, 0777)
 	if err != nil {
 		panic(err)
 	}
