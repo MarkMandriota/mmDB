@@ -14,8 +14,8 @@ func main() {
 	r := &Requester{Data: make(map[string]string)}
 
 	defer func() {
-		if r := recover(); r != nil {
-			fmt.Fprintln(os.Stderr, r)
+		if err := recover(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
 		}
 	}()
 
