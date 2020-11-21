@@ -1,6 +1,6 @@
 # mmDB
 
-Example for using:
+**Example:**
 ```go
 package main
 
