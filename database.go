@@ -16,6 +16,7 @@ func (r *Requester) Load(pass string) {
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
 	reader := bufio.NewReader(file)
 	for {
@@ -34,6 +35,7 @@ func (r *Requester) Unload(pass string) {
 	if err != nil {
 		panic(err)
 	}
+	defer syscall.Close(file)
 
 	buff := make([]byte, 0, 1024)
 	for k, v := range r.Data {
