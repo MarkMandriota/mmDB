@@ -2,47 +2,42 @@
 
 **Example:**
 ```go
-package mm_database
+package main
 
 import (
-	"bufio"
-	"io"
+	. "./MM_database"
+	"fmt"
 	"os"
-	"syscall"
 )
 
-type Requester struct {
-	Data map[string]string
-}
+func main() {
+	r := &Requester{Data: make(map[string]string)}
 
-func (r *Requester) Load(name string) {
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_RDONLY|syscall.O_CLOEXEC, 0777)
-	if err != nil {
-		panic(err)
-	}
-
-	reader := bufio.NewReader(file)
-	for {
-		k, _ := reader.ReadBytes(0)
-		v, err := reader.ReadBytes(0)
-		if err == io.EOF {
-			break
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Fprintln(os.Stderr, r)
 		}
+	}()
 
-		r.Data[string(k[:len(k)-1])] = string(v[:len(v)-1])
-	}
+	r.Load("info")
+
+	r.Data["name"] = "Mark"
+	r.Data["DOB"] = "2007"
+
+	r.Unload("info")
+
+	fmt.Printf(read("info"))
 }
 
-func (r *Requester) Unload(name string) {
-	file, err := syscall.Open(name, os.O_CREATE | os.O_TRUNC | syscall.O_WRONLY | syscall.O_CLOEXEC, 0777)
-	if err != nil {
-		panic(err)
+func read(pass string) string {
+	r := &Requester{Data: make(map[string]string)}
+	r.Load(pass)
+
+	var str string
+	for k, v := range r.Data {
+		str += fmt.Sprintf("Key: %s, Value: %s\n", k, v)
 	}
 
-	buff := make([]byte, 0, 1024)
-	for k, v := range r.Data {
-		buff = append(buff, []byte(k + "\000" + v + "\000")...)
-	}
-	syscall.Write(file, buff)
+	return str
 }
 ```
