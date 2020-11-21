@@ -1,3 +1,7 @@
+# mmDB
+
+**Example:**
+```go
 package main
 
 import (
@@ -36,3 +40,4 @@ func read(pass string) string {
 
 	return str
 }
+```
