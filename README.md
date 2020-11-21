@@ -1,7 +1,3 @@
-# mmDB
-
-**Example:**
-```go
 package main
 
 import (
@@ -22,7 +18,7 @@ func main() {
 	r.Load("info")
 
 	r.Data["name"] = "Mark"
-	r.Data["DOB"] = "2007"
+	r.Data["DOB"] = "11.01.2007"
 
 	r.Unload("info")
 
@@ -40,4 +36,3 @@ func read(pass string) string {
 
 	return str
 }
-```
