@@ -31,15 +31,15 @@ func (r *Requester) Load(pass string) {
 }
 
 func (r *Requester) Unload(pass string) {
-	file, err := syscall.Open(pass, syscall.O_CREAT|syscall.O_TRUNC|syscall.O_WRONLY|syscall.O_CLOEXEC, 0777)
+	file, err := os.OpenFile(pass, syscall.O_CREAT|syscall.O_TRUNC|syscall.O_WRONLY|syscall.O_CLOEXEC, 0777)
 	if err != nil {
 		panic(err)
 	}
-	defer syscall.Close(file)
+	defer file.Close()
 
-	buff := make([]byte, 0, 4096)
+	writer := bufio.NewWriterSize(file, 4096)
 	for k, v := range r.Data {
-		buff = append(buff, k + "\000" + v + "\000"...)
+		writer.WriteString(k + "\000" + v + "\000")
 	}
-	syscall.Write(file, buff)
+	writer.Flush()
 }
