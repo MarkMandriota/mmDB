@@ -1,10 +1,11 @@
-package mm_database
+package database
 
 import (
 	"bufio"
 	"io"
 	"os"
 	"syscall"
+	"unsafe"
 )
 
 type Requester struct {
@@ -25,8 +26,7 @@ func (r *Requester) Load(pass string) {
 		if err == io.EOF {
 			break
 		}
-
-		r.Data[string(k[:len(k)-1])] = string(v[:len(v)-1])
+		r.Data[(*(*string)(unsafe.Pointer(&k)))[:len(k)-1]] = (*(*string)(unsafe.Pointer(&v)))[:len(v)-1]
 	}
 }
 
@@ -37,9 +37,9 @@ func (r *Requester) Unload(pass string) {
 	}
 	defer syscall.Close(file)
 
-	buff := make([]byte, 0, 1024)
+	buff := make([]byte, 0, 4096)
 	for k, v := range r.Data {
-		buff = append(buff, []byte(k + "\000" + v + "\000")...)
+		buff = append(buff, k + "\000" + v + "\000"...)
 	}
 	syscall.Write(file, buff)
 }
