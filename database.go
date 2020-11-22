@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"io"
 	"os"
-	"syscall"
+	. "syscall"
 	"unsafe"
 )
 
@@ -13,7 +13,7 @@ type Requester struct {
 }
 
 func (r *Requester) Load(pass string) {
-	file, err := os.OpenFile(pass, syscall.O_CREAT|syscall.O_RDONLY|syscall.O_CLOEXEC, 0777)
+	file, err := os.OpenFile(pass, O_CREAT|O_RDONLY|O_CLOEXEC, 0777)
 	if err != nil {
 		panic(err)
 	}
@@ -31,13 +31,13 @@ func (r *Requester) Load(pass string) {
 }
 
 func (r *Requester) Unload(pass string) {
-	file, err := os.OpenFile(pass, syscall.O_CREAT|syscall.O_TRUNC|syscall.O_WRONLY|syscall.O_CLOEXEC, 0777)
+	file, err := os.OpenFile(pass, O_CREAT|O_TRUNC|O_WRONLY|O_CLOEXEC, 0777)
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
 
-	writer := bufio.NewWriterSize(file, 4096)
+	writer := bufio.NewWriter(file)
 	for k, v := range r.Data {
 		writer.WriteString(k + "\000" + v + "\000")
 	}
